@@ -14,6 +14,7 @@ let s:FP = s:V.import('System.Filepath')
 let s:vs = {
 \  'key':  'VisualStudio\SxS\VS7',
 \  '2010': '10.0',
+\  '2012': '11.0',
 \}
 
 " Windows SDK
@@ -21,6 +22,10 @@ let s:vs_winsdk = {
 \  '10.0': {
 \    'key': 'Microsoft SDKs\Windows\v7.1',
 \    'var': 'InstallationFolder',
+\  },
+\  '11.0': {
+\    'key': 'Windows Kits\Installed Roots',
+\    'var': 'KitsRoot',
 \  },
 \}
 
@@ -167,6 +172,10 @@ function! s:winsdk(vsver, arch) abort
       call add(vars.lib, s:FP.join(winsdkdir, 'Lib', a:arch))
     endif
     call add(vars.include, s:FP.join(winsdkdir, 'Include'))
+  elseif a:vsver ==# '11.0'
+    call add(vars.path, s:FP.join(winsdkdir, 'bin', a:arch))
+    call extend(vars.include, map(['shared', 'um', 'winrt'], 's:FP.join(winsdkdir, "Include", v:val)'))
+    call add(vars.lib, s:FP.join(winsdkdir, 'Lib', 'win8', 'um', a:arch))
   endif
   return vars
 endfunction
