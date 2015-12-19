@@ -16,6 +16,7 @@ let s:vs = {
 \  '2010': '10.0',
 \  '2012': '11.0',
 \  '2013': '12.0',
+\  '2015': '14.0',
 \}
 
 " Windows SDK
@@ -31,6 +32,10 @@ let s:vs_winsdk = {
 \  '12.0': {
 \    'key': 'Windows Kits\Installed Roots',
 \    'var': 'KitsRoot81',
+\  },
+\  '14.0': {
+\    'key': 'Windows Kits\Installed Roots',
+\    'var': 'KitsRoot10',
 \  },
 \}
 
@@ -181,6 +186,15 @@ function! s:winsdk(vsver, arch) abort
     call add(vars.path, s:FP.join(winsdkdir, 'bin', a:arch))
     call extend(vars.include, map(['shared', 'um', 'winrt'], 's:FP.join(winsdkdir, "Include", v:val)'))
     call add(vars.lib, s:FP.join(winsdkdir, 'Lib', a:vsver ==# '11.0' ? 'win8' : 'winv6.3', 'um', a:arch))
+  elseif a:vsver ==# '14.0'
+    let dirs = filter(split(glob(s:FP.join(winsdkdir, 'Include', '10.*'), 1), '\n'), 'isdirectory(v:val)')
+    if empty(dirs)
+      return {}
+    endif
+    let winsdkver = sort(map(dirs, 'fnamemodify(v:val, ":t")'))[-1]
+    call add(vars.path, s:FP.join(winsdkdir, 'bin', a:arch))
+    call extend(vars.include, map(['ucrt', 'shared', 'um', 'winrt'], 's:FP.join(winsdkdir, "Include", winsdkver, v:val)'))
+    call extend(vars.lib, map(['ucrt', 'um'], 's:FP.join(winsdkdir, "Lib", winsdkver, v:val, a:arch)'))
   endif
   return vars
 endfunction

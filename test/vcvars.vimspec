@@ -80,6 +80,22 @@ Describe #call()
     Assert Equals(v:shell_error, 0)
     Assert Equals(out, '1800:64')
   End
+
+  It compiles with Visual Studio 2015
+    if index(vcvars#list(), '14.0') == -1
+      Skip requires Visual Studio 2015
+    endif
+
+    call vcvars#call(expr, '2015', 'x86')
+    silent let out = system(exe)
+    Assert Equals(v:shell_error, 0)
+    Assert Equals(out, '1900:32')
+
+    call vcvars#call(expr, '2015', 'x64')
+    silent let out = system(exe)
+    Assert Equals(v:shell_error, 0)
+    Assert Equals(out, '1900:64')
+  End
 End
 
 Describe #get()
@@ -125,6 +141,22 @@ Describe #get()
     endif
 
     for ver in ['12.0', '2013']
+      for arch in ['x86', 'x64', 'x86-64', 'x86_64', 'amd64']
+        let vars = vcvars#get(ver, arch)
+        Assert IsDict(vars)
+        Assert NotEmpty(vars)
+        Assert NotEmpty(Where('nmake.exe', vars.path))
+      endfor
+      Assert Equals(vcvars#get(ver, 'arm'), {})
+    endfor
+  End
+
+  It returns Visual Studio 2015 environment variables
+    if index(vcvars#list(), '14.0') == -1
+      Skip requires Visual Studio 2015
+    endif
+
+    for ver in ['14.0', '2015']
       for arch in ['x86', 'x64', 'x86-64', 'x86_64', 'amd64']
         let vars = vcvars#get(ver, arch)
         Assert IsDict(vars)
