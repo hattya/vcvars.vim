@@ -15,6 +15,7 @@ let s:vs = {
 \  'key':  'VisualStudio\SxS\VS7',
 \  '2010': '10.0',
 \  '2012': '11.0',
+\  '2013': '12.0',
 \}
 
 " Windows SDK
@@ -26,6 +27,10 @@ let s:vs_winsdk = {
 \  '11.0': {
 \    'key': 'Windows Kits\Installed Roots',
 \    'var': 'KitsRoot',
+\  },
+\  '12.0': {
+\    'key': 'Windows Kits\Installed Roots',
+\    'var': 'KitsRoot81',
 \  },
 \}
 
@@ -172,10 +177,10 @@ function! s:winsdk(vsver, arch) abort
       call add(vars.lib, s:FP.join(winsdkdir, 'Lib', a:arch))
     endif
     call add(vars.include, s:FP.join(winsdkdir, 'Include'))
-  elseif a:vsver ==# '11.0'
+  elseif a:vsver =~# '^1[12].0$'
     call add(vars.path, s:FP.join(winsdkdir, 'bin', a:arch))
     call extend(vars.include, map(['shared', 'um', 'winrt'], 's:FP.join(winsdkdir, "Include", v:val)'))
-    call add(vars.lib, s:FP.join(winsdkdir, 'Lib', 'win8', 'um', a:arch))
+    call add(vars.lib, s:FP.join(winsdkdir, 'Lib', a:vsver ==# '11.0' ? 'win8' : 'winv6.3', 'um', a:arch))
   endif
   return vars
 endfunction
