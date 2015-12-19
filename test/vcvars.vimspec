@@ -1,0 +1,73 @@
+scriptencoding utf-8
+
+Describe #call()
+  Before each
+    let path = tempname()
+    let src = path . '.c'
+    let obj = path . '.obj'
+    let exe = path . '.exe'
+    let expr = printf('!cl /nologo "/Fo%s" "/Fe%s" "%s" >NUL', obj, exe, src)
+
+    let data = [
+    \  '#include <stdio.h>',
+    \  'void main(void) {',
+    \  '#  ifdef _WIN64',
+    \  '  printf("%d:64", _MSC_VER);',
+    \  '#  else',
+    \  '  printf("%d:32", _MSC_VER);',
+    \  '#  endif',
+    \  '}',
+    \]
+    call writefile(data, src)
+  End
+
+  After each
+    for f in split(glob(path . '*', 1), '\n')
+      call delete(f)
+    endfor
+  End
+
+  It cannot compile
+    call vcvars#call(expr, '2005', 'x86')
+    silent call system(exe)
+    Assert Compare(v:shell_error, '!=', 0)
+  End
+
+  It compiles with Visual Studio 2010
+    if index(vcvars#list(), '10.0') == -1
+      Skip requires Visual Studio 2010
+    endif
+
+    call vcvars#call(expr, '2010', 'x86')
+    silent let out = system(exe)
+    Assert Equals(v:shell_error, 0)
+    Assert Equals(out, '1600:32')
+
+    call vcvars#call(expr, '2010', 'x64')
+    silent let out = system(exe)
+    Assert Equals(v:shell_error, 0)
+    Assert Equals(out, '1600:64')
+  End
+End
+
+Describe #get()
+  It returns empty dict
+    Assert Equals(vcvars#get('2005', 'x86'), {})
+  End
+
+  It returns Visual Studio 2010 environment variables
+    if index(vcvars#list(), '10.0') == -1
+      Skip requires Visual Studio 2010
+    endif
+
+    for ver in ['10.0', '2010']
+      for arch in ['x86', 'x64', 'x86-64', 'x86_64', 'amd64']
+        let vars = vcvars#get(ver, arch)
+        Assert IsDict(vars)
+        Assert NotEmpty(vars)
+        Assert NotEmpty(Where('nmake.exe', vars.path))
+      endfor
+      Assert Equals(vcvars#get(ver, 'ia64'), {})
+    endfor
+  End
+End
