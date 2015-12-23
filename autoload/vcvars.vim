@@ -1,6 +1,6 @@
 " File:        autoload/vcvars.vim
 " Author:      Akinori Hattori <hattya@gmail.com>
-" Last Change: 2015-12-19
+" Last Change: 2015-12-23
 " License:     MIT License
 
 let s:save_cpo = &cpo
@@ -53,16 +53,16 @@ function! vcvars#call(expr, ver, arch) abort
   if empty(vars)
     return
   endif
-  let sep = s:FP.path_separator()
   let path = $PATH
   let include = $INCLUDE
   let lib = $LIB
   let libpath = $LIBPATH
   try
-    let $PATH = join(vars.path, sep) . sep . path
-    let $INCLUDE = join(vars.include, sep) . sep . include
-    let $LIB = join(vars.lib, sep) . sep . lib
-    let $LIBPATH = join(vars.libpath, sep) . sep . libpath
+    let sep = s:FP.path_separator()
+    let $PATH = join(vars.path + [path], sep)
+    let $INCLUDE = join(vars.include + [include], sep)
+    let $LIB = join(vars.lib + [lib], sep)
+    let $LIBPATH = join(vars.libpath + [libpath], sep)
     if type(a:expr) == s:funcref
       call a:expr()
     else
@@ -84,7 +84,7 @@ function! vcvars#get(ver, arch) abort
   endif
   if a:arch ==? 'x86'
     let arch = 'x86'
-  elseif a:arch =~? '\v^%(x64|x86[_-]64|amd64)'
+  elseif a:arch =~? '\v^%(x64|x86[_-]64|amd64)$'
     let arch = 'x64'
   else
     return {}
@@ -147,8 +147,7 @@ function! s:msvc(ver, arch, vsdir) abort
   \                       s:FP.join(a:vsdir, 'Common7', 'IDE'),
   \                       s:FP.join(a:vsdir, 'Common7', 'Tools')])
 
-  let atlmfcdir = s:FP.join(vcdir, 'atlmfc')
-  for dir in [vcdir, atlmfcdir]
+  for dir in [vcdir, s:FP.join(vcdir, 'atlmfc')]
     let inc = s:FP.join(dir, 'include')
     if isdirectory(inc)
       call add(vars.include, inc)
