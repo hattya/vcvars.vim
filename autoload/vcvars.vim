@@ -48,8 +48,8 @@ let s:vars = {
 \}
 let s:funcref = type(function('type'))
 
-function! vcvars#call(expr, ver, arch) abort
-  let vars = vcvars#get(a:ver, a:arch)
+function! vcvars#call(expr, ver, ...) abort
+  let vars = call('vcvars#get', [a:ver] + a:000)
   if empty(vars)
     return
   endif
@@ -76,18 +76,22 @@ function! vcvars#call(expr, ver, arch) abort
   endtry
 endfunction
 
-function! vcvars#get(ver, arch) abort
+function! vcvars#get(ver, ...) abort
   let ver = get(s:vs, a:ver, a:ver)
   let vsdir = get(s:query(s:vs.key), ver, '')
   if !isdirectory(vsdir)
     return {}
   endif
-  if a:arch ==? 'x86'
-    let arch = 'x86'
-  elseif a:arch =~? '\v^%(x64|x86[_-]64|amd64)$'
-    let arch = 'x64'
+  if a:0
+    if a:1 ==? 'x86'
+      let arch = 'x86'
+    elseif a:1 =~? '\v^%(x64|x86[_-]64|amd64)$'
+      let arch = 'x64'
+    else
+      return {}
+    endif
   else
-    return {}
+    let arch = has('win64') ? 'x64' : 'x86'
   endif
 
   if !has_key(s:vcvars, ver)

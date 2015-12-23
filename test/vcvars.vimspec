@@ -3,6 +3,7 @@ scriptencoding utf-8
 Describe #call()
   Before all
     let src = tempname() . '.c'
+    let arch = has('win64') ? '64' : '32'
 
     let data = [
     \  '#include <stdio.h>',
@@ -54,6 +55,11 @@ Describe #call()
     silent let out = system(exe)
     Assert Equals(v:shell_error, 0)
     Assert Equals(out, '1600:64')
+
+    call vcvars#call(expr, '2010')
+    silent let out = system(exe)
+    Assert Equals(v:shell_error, 0)
+    Assert Equals(out, '1600:' . arch)
   End
 
   It compiles with Visual Studio 2012
@@ -70,6 +76,11 @@ Describe #call()
     silent let out = system(exe)
     Assert Equals(v:shell_error, 0)
     Assert Equals(out, '1700:64')
+
+    call vcvars#call(expr, '2012')
+    silent let out = system(exe)
+    Assert Equals(v:shell_error, 0)
+    Assert Equals(out, '1700:' . arch)
   End
 
   It compiles with Visual Studio 2013
@@ -86,6 +97,11 @@ Describe #call()
     silent let out = system(exe)
     Assert Equals(v:shell_error, 0)
     Assert Equals(out, '1800:64')
+
+    call vcvars#call(expr, '2013')
+    silent let out = system(exe)
+    Assert Equals(v:shell_error, 0)
+    Assert Equals(out, '1800:' . arch)
   End
 
   It compiles with Visual Studio 2015
@@ -102,6 +118,11 @@ Describe #call()
     silent let out = system(exe)
     Assert Equals(v:shell_error, 0)
     Assert Equals(out, '1900:64')
+
+    call vcvars#call(expr, '2015')
+    silent let out = system(exe)
+    Assert Equals(v:shell_error, 0)
+    Assert Equals(out, '1900:' . arch)
   End
 End
 
@@ -122,6 +143,11 @@ Describe #get()
         Assert NotEmpty(vars)
         Assert NotEmpty(Where('nmake.exe', vars.path))
       endfor
+      let vars = vcvars#get(ver)
+      Assert IsDict(vars)
+      Assert NotEmpty(vars)
+      Assert NotEmpty(Where('nmake.exe', vars.path))
+
       Assert Equals(vcvars#get(ver, 'ia64'), {})
     endfor
   End
@@ -138,6 +164,11 @@ Describe #get()
         Assert NotEmpty(vars)
         Assert NotEmpty(Where('nmake.exe', vars.path))
       endfor
+      let vars = vcvars#get(ver)
+      Assert IsDict(vars)
+      Assert NotEmpty(vars)
+      Assert NotEmpty(Where('nmake.exe', vars.path))
+
       Assert Equals(vcvars#get(ver, 'arm'), {})
     endfor
   End
@@ -154,6 +185,11 @@ Describe #get()
         Assert NotEmpty(vars)
         Assert NotEmpty(Where('nmake.exe', vars.path))
       endfor
+      let vars = vcvars#get(ver)
+      Assert IsDict(vars)
+      Assert NotEmpty(vars)
+      Assert NotEmpty(Where('nmake.exe', vars.path))
+
       Assert Equals(vcvars#get(ver, 'arm'), {})
     endfor
   End
@@ -170,6 +206,11 @@ Describe #get()
         Assert NotEmpty(vars)
         Assert NotEmpty(Where('nmake.exe', vars.path))
       endfor
+      let vars = vcvars#get(ver)
+      Assert IsDict(vars)
+      Assert NotEmpty(vars)
+      Assert NotEmpty(Where('nmake.exe', vars.path))
+
       Assert Equals(vcvars#get(ver, 'arm'), {})
     endfor
   End
