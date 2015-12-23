@@ -1,12 +1,8 @@
 scriptencoding utf-8
 
 Describe #call()
-  Before each
-    let path = tempname()
-    let src = path . '.c'
-    let obj = path . '.obj'
-    let exe = path . '.exe'
-    let expr = printf('!cl /nologo "/Fo%s" "/Fe%s" "%s" >NUL', obj, exe, src)
+  Before all
+    let src = tempname() . '.c'
 
     let data = [
     \  '#include <stdio.h>',
@@ -21,8 +17,19 @@ Describe #call()
     call writefile(data, src)
   End
 
+  After all
+    call delete(src)
+  End
+
+  Before each
+    let tmp = tempname()
+    let obj = tmp . '.obj'
+    let exe = tmp . '.exe'
+    let expr = printf('!cl /nologo "/Fo%s" "/Fe%s" "%s" >NUL', obj, exe, src)
+  End
+
   After each
-    for f in split(glob(path . '*', 1), '\n')
+    for f in split(glob(tmp . '*', 1), '\n')
       call delete(f)
     endfor
   End
