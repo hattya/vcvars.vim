@@ -7,6 +7,9 @@ environment variables for a specified version of Visual C++.
 .. image:: https://ci.appveyor.com/api/projects/status/pjvw0fiidsy229jq?svg=true
    :target: https://ci.appveyor.com/project/hattya/vcvars-vim
 
+.. image:: https://img.shields.io/badge/powered_by-vital.vim-80273f.svg
+   :target: https://github.com/vim-jp/vital.vim
+
 
 Installation
 ------------
