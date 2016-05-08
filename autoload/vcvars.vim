@@ -1,14 +1,13 @@
 " File:        autoload/vcvars.vim
 " Author:      Akinori Hattori <hattya@gmail.com>
-" Last Change: 2015-12-23
+" Last Change: 2016-05-08
 " License:     MIT License
 
 let s:save_cpo = &cpo
 set cpo&vim
 
-let s:V = vital#of('vcvars')
-let s:P = s:V.import('Process')
-let s:FP = s:V.import('System.Filepath')
+let s:P = vital#vcvars#import('Process')
+let s:FP = vital#vcvars#import('System.Filepath')
 
 " Visual Studio
 let s:vs = {
