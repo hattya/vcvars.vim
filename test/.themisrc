@@ -3,8 +3,6 @@ call themis#helper('command').with(s:assert)
 
 let s:V = vital#vcvars#import('Prelude')
 
-let g:is_win = has('win32') || has('win64')
-
 function! Where(name, path) abort
   return s:V.globpath(join(map(copy(a:path), 'escape(v:val, ",")'), ','), a:name)
 endfunction

@@ -10,11 +10,11 @@ Describe #call()
     let data = [
     \  '#include <stdio.h>',
     \  'void main(void) {',
-    \  '#  ifdef _WIN64',
+    \  '#ifdef _WIN64',
     \  '  printf("%d:64", _MSC_VER);',
-    \  '#  else',
+    \  '#else',
     \  '  printf("%d:32", _MSC_VER);',
-    \  '#  endif',
+    \  '#endif',
     \  '}',
     \]
     call writefile(data, src)
