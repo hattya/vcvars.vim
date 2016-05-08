@@ -2,6 +2,8 @@ scriptencoding utf-8
 
 Describe #call()
   Before all
+    let V = vital#vcvars#import('Prelude')
+
     let src = tempname() . '.c'
     let arch = has('win64') ? '64' : '32'
 
@@ -30,7 +32,7 @@ Describe #call()
   End
 
   After each
-    for f in split(glob(tmp . '*', 1), '\n')
+    for f in V.glob(tmp . '*')
       call delete(f)
     endfor
   End

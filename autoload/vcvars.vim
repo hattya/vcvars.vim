@@ -6,6 +6,7 @@
 let s:save_cpo = &cpo
 set cpo&vim
 
+let s:V = vital#vcvars#import('Prelude')
 let s:P = vital#vcvars#import('Process')
 let s:FP = vital#vcvars#import('System.Filepath')
 
@@ -45,7 +46,6 @@ let s:vars = {
 \  'lib':     [],
 \  'libpath': [],
 \}
-let s:funcref = type(function('type'))
 
 function! vcvars#call(expr, ver, ...) abort
   let vars = call('vcvars#get', [a:ver] + a:000)
@@ -62,7 +62,7 @@ function! vcvars#call(expr, ver, ...) abort
     let $INCLUDE = join(vars.include + [include], sep)
     let $LIB = join(vars.lib + [lib], sep)
     let $LIBPATH = join(vars.libpath + [libpath], sep)
-    if type(a:expr) == s:funcref
+    if s:V.is_funcref(a:expr)
       call a:expr()
     else
       execute a:expr
@@ -189,7 +189,7 @@ function! s:winsdk(vsver, arch) abort
     call extend(vars.include, map(['shared', 'um', 'winrt'], 's:FP.join(winsdkdir, "Include", v:val)'))
     call add(vars.lib, s:FP.join(winsdkdir, 'Lib', a:vsver ==# '11.0' ? 'win8' : 'winv6.3', 'um', a:arch))
   elseif a:vsver ==# '14.0'
-    let dirs = filter(split(glob(s:FP.join(winsdkdir, 'Include', '10.*'), 1), '\n'), 'isdirectory(v:val)')
+    let dirs = filter(s:V.glob(s:FP.join(winsdkdir, 'Include', '10.*')), 'isdirectory(v:val)')
     if empty(dirs)
       return {}
     endif
