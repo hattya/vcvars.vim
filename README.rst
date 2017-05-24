@@ -1,7 +1,7 @@
 vcvars.vim
 ==========
 
-vcvars.vim is a Vim plugin to retrieve the PATH, INCLUDE, LIB and LIBPATH
+vcvars.vim is a Vim plugin to retrieve the PATH, INCLUDE, LIB, and LIBPATH
 environment variables for a specified version of Visual C++.
 
 .. image:: https://ci.appveyor.com/api/projects/status/pjvw0fiidsy229jq/branch/master?svg=true
