@@ -2,7 +2,13 @@ let s:assert = themis#helper('assert')
 call themis#helper('command').with(s:assert)
 
 let s:V = vital#vcvars#import('Prelude')
+let s:FP = vital#vcvars#import('System.Filepath')
 
 function! Where(name, path) abort
   return s:V.globpath(join(map(copy(a:path), 'escape(v:val, ",")'), ','), a:name)
 endfunction
+
+if $PROFILE !=# ''
+  execute 'profile start' $PROFILE
+  execute 'profile! file' s:FP.join('.',  'autoload', 'vcvars*')
+endif
