@@ -26,7 +26,7 @@ Describe #call()
     let tmp = tempname()
     let obj = tmp . '.obj'
     let exe = tmp . '.exe'
-    let expr = printf('!cl /nologo "/Fo%s" "/Fe%s" "%s" >NUL', obj, exe, src)
+    let expr = printf('!cl /nologo "/Fo%s" "/Fe%s" /MD "%s" >NUL', obj, exe, src)
   End
 
   After each
@@ -124,6 +124,27 @@ Describe #call()
     Assert Equals(v:shell_error, 0)
     Assert Equals(out, '1900:' . arch)
   End
+
+  It complies with Visual Studio 2017
+    if index(vcvars#list(), '15.0') == -1
+      Skip requires Visual Studio 2017
+    endif
+
+    call vcvars#call(expr, '2017', 'x86')
+    silent let out = system(exe)
+    Assert Equals(v:shell_error, 0)
+    Assert  Match(out, '191\d:32')
+
+    call vcvars#call(expr, '2017', 'x64')
+    silent let out = system(exe)
+    Assert Equals(v:shell_error, 0)
+    Assert  Match(out, '191\d:64')
+
+    call vcvars#call(expr, '2017')
+    silent let out = system(exe)
+    Assert Equals(v:shell_error, 0)
+    Assert  Match(out, '191\d:' . arch)
+  End
 End
 
 Describe #get()
@@ -200,6 +221,27 @@ Describe #get()
     endif
 
     for ver in ['14.0', '2015']
+      for arch in ['x86', 'x64', 'x86-64', 'x86_64', 'amd64']
+        let vars = vcvars#get(ver, arch)
+        Assert IsDict(vars)
+        Assert NotEmpty(vars)
+        Assert NotEmpty(Where('nmake.exe', vars.path))
+      endfor
+      let vars = vcvars#get(ver)
+      Assert IsDict(vars)
+      Assert NotEmpty(vars)
+      Assert NotEmpty(Where('nmake.exe', vars.path))
+
+      Assert Equals(vcvars#get(ver, 'arm'), {})
+    endfor
+  End
+
+  It returns Visual Studio 2017 environment variables
+    if index(vcvars#list(), '15.0') == -1
+      Skip requires Visual Studio 2017
+    endif
+
+    for ver in ['15.0', '2017']
       for arch in ['x86', 'x64', 'x86-64', 'x86_64', 'amd64']
         let vars = vcvars#get(ver, arch)
         Assert IsDict(vars)

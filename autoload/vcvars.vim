@@ -17,6 +17,13 @@ let s:vs = {
 \  '2012': '11.0',
 \  '2013': '12.0',
 \  '2015': '14.0',
+\  '2017': '15.0',
+\}
+
+" Visual C++
+let s:vc = {
+\  'id':   'Microsoft.VisualStudio.Component.VC.Tools.x86.x64',
+\  '15.0': 'Microsoft.VCToolsVersion.default.txt',
 \}
 
 " Windows SDK
@@ -34,6 +41,10 @@ let s:vs_winsdk = {
 \    'var': 'KitsRoot81',
 \  },
 \  '14.0': {
+\    'key': 'Windows Kits\Installed Roots',
+\    'var': 'KitsRoot10',
+\  },
+\  '15.0': {
 \    'key': 'Windows Kits\Installed Roots',
 \    'var': 'KitsRoot10',
 \  },
@@ -81,7 +92,7 @@ endfunction
 
 function! vcvars#get(ver, ...) abort
   let ver = get(s:vs, a:ver, a:ver)
-  let vsdir = get(s:query(s:vs.key), ver, '')
+  let vsdir = get(ver =~# '^1[0-4]\.0$' ? s:query(s:vs.key) : s:vswhere(), ver, '')
   if !isdirectory(vsdir)
     return {}
   endif
@@ -120,32 +131,62 @@ function! vcvars#get(ver, ...) abort
 endfunction
 
 function! vcvars#list() abort
-  return keys(s:query(s:vs.key))
+  return keys(s:query(s:vs.key)) + keys(s:vswhere())
 endfunction
 
 function! s:msvc(ver, arch, vsdir) abort
-  let vcdir = s:FP.join(a:vsdir, 'VC')
-  if !isdirectory(vcdir)
-    return {}
-  endif
-  let vars = deepcopy(s:vars)
+  if a:ver =~# '^1[0-4]\.0$'
+    let vcdir = s:FP.join(a:vsdir, 'VC')
+    if !isdirectory(vcdir)
+      return {}
+    endif
+    let vars = deepcopy(s:vars)
 
-  if a:arch ==# 'x86'
-    if filereadable(s:FP.join(vcdir, 'bin', 'cl.exe'))
-      call add(vars.path, s:FP.join(vcdir, 'bin'))
+    if a:arch ==# 'x86'
+      if filereadable(s:FP.join(vcdir, 'bin', 'cl.exe'))
+        call add(vars.path, s:FP.join(vcdir, 'bin'))
+      endif
+      let arch = ''
+    elseif a:arch ==# 'x64'
+      if has('win64') && filereadable(s:FP.join(vcdir, 'bin', 'amd64', 'cl.exe'))
+        call add(vars.path, s:FP.join(vcdir, 'bin', 'amd64'))
+      elseif filereadable(s:FP.join(vcdir, 'bin', 'x86_amd64', 'cl.exe'))
+        call extend(vars.path, [s:FP.join(vcdir, 'bin', 'x86_amd64'),
+        \                       s:FP.join(vcdir, 'bin')])
+      endif
+      let arch = 'amd64'
     endif
-  elseif a:arch ==# 'x64'
-    if has('win64') && filereadable(s:FP.join(vcdir, 'bin', 'amd64', 'cl.exe'))
-      call add(vars.path, s:FP.join(vcdir, 'bin', 'amd64'))
-    elseif filereadable(s:FP.join(vcdir, 'bin', 'x86_amd64', 'cl.exe'))
-      call extend(vars.path, [s:FP.join(vcdir, 'bin', 'x86_amd64'),
-      \                       s:FP.join(vcdir, 'bin')])
+    let vcpackages = s:FP.join(vcdir, 'VCPackages')
+  else
+    let conf = s:FP.join(a:vsdir, 'VC', 'Auxiliary', 'Build', s:vc[a:ver])
+    if !filereadable(conf)
+      return {}
     endif
+    let vcdir = s:FP.join(a:vsdir, 'VC', 'Tools', 'MSVC', readfile(conf)[0])
+    if !isdirectory(vcdir)
+      return {}
+    endif
+    let vars = deepcopy(s:vars)
+
+    if a:arch ==# 'x86'
+      if filereadable(s:FP.join(vcdir, 'bin', 'Host' . a:arch, a:arch, 'cl.exe'))
+        call add(vars.path, s:FP.join(vcdir, 'bin', 'Host' . a:arch, a:arch))
+      endif
+    elseif a:arch ==# 'x64'
+      if has('win64') && filereadable(s:FP.join(vcdir, 'bin', 'Host' . a:arch, a:arch, 'cl.exe'))
+        call add(vars.path, s:FP.join(vcdir, 'bin', 'Host' . a:arch, a:arch))
+      elseif filereadable(s:FP.join(vcdir, 'bin', 'Hostx86', a:arch, 'cl.exe'))
+        call extend(vars.path, [s:FP.join(vcdir, 'bin', 'Hostx86', a:arch),
+        \                       s:FP.join(vcdir, 'bin', 'Hostx86', 'x86')])
+      endif
+    endif
+    let arch = a:arch
+    let vcpackages = s:FP.join(a:vsdir, 'Common7', 'IDE', 'VC', 'VCPackages')
   endif
   if empty(vars.path)
     return {}
   endif
-  call extend(vars.path, [s:FP.join(vcdir, 'VCPackages'),
+  call extend(vars.path, [vcpackages,
   \                       s:FP.join(a:vsdir, 'Common7', 'IDE'),
   \                       s:FP.join(a:vsdir, 'Common7', 'Tools')])
 
@@ -155,9 +196,7 @@ function! s:msvc(ver, arch, vsdir) abort
       call add(vars.include, inc)
     endif
 
-    let lib = a:arch ==# 'x86' ? s:FP.join(dir, 'lib') :
-    \         a:arch ==# 'x64' ? s:FP.join(dir, 'lib', 'amd64') :
-    \                            ''
+    let lib = s:FP.join(dir, 'lib', arch)
     if isdirectory(lib)
       call add(vars.lib, lib)
       call add(vars.libpath, lib)
@@ -193,7 +232,7 @@ function! s:winsdk(vsver, arch) abort
       return {}
     endif
     let winsdkver = sort(map(dirs, 'fnamemodify(v:val, ":t")'))[-1]
-    call add(vars.path, s:FP.join(winsdkdir, 'bin', a:arch))
+    call extend(vars.path, map([winsdkver, ''], 's:FP.join(winsdkdir, "bin", v:val, a:arch)'))
     call extend(vars.include, map(['ucrt', 'shared', 'um'], 's:FP.join(winsdkdir, "Include", winsdkver, v:val)'))
     call extend(vars.lib, map(['ucrt', 'um'], 's:FP.join(winsdkdir, "Lib", winsdkver, v:val, a:arch)'))
   endif
@@ -213,6 +252,36 @@ function! s:query(key, ...) abort
     let m = matchlist(l, '\v^\s{4,}(.+)\s{4,}REG_.+\s{4,}(.+)$')
     if !empty(m)
       let rv[m[1]] = m[2]
+    endif
+  endfor
+  return rv
+endfunction
+
+function! s:vswhere() abort
+  let isi = &isident
+  try
+    set isident+=(,)
+    let vswhere = ( has('win64') ? $ProgramFiles(x86) : $ProgramFiles ) . '\Microsoft Visual Studio\Installer\vswhere.exe'
+  finally
+    let &isident = isi
+  endtry
+  if !filereadable(vswhere)
+    return {}
+  endif
+
+  silent let out = s:P.system(printf('"%s" -products * -requires %s -nologo', vswhere, s:vc.id))
+  let rv = {}
+  let props = {}
+  for l in split(out . '\n', '\n')
+    let i = stridx(l, ':')
+    if i != -1
+      let props[l[: i-1]] = l[i+2 :]
+    elseif !empty(props)
+      let ver = matchstr(props['installationVersion'], '^\d\+') . '.0'
+      if !has_key(rv, ver)
+        let rv[ver] = props['installationPath']
+      endif
+      let props = {}
     endif
   endfor
   return rv
