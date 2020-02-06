@@ -1,6 +1,6 @@
 " File:        autoload/vcvars.vim
 " Author:      Akinori Hattori <hattya@gmail.com>
-" Last Change: 2016-05-08
+" Last Change: 2020-02-06
 " License:     MIT License
 
 let s:save_cpo = &cpo
@@ -75,6 +75,10 @@ function! vcvars#call(expr, ver, ...) abort
   endtry
 endfunction
 
+function! vcvars#clear() abort
+  let s:vcvars = {}
+endfunction
+
 function! vcvars#get(ver, ...) abort
   let ver = get(s:vs, a:ver, a:ver)
   let vsdir = get(s:query(s:vs.key), ver, '')
@@ -115,10 +119,6 @@ function! vcvars#get(ver, ...) abort
   return s:vcvars[ver][arch]
 endfunction
 
-function! vcvars#clear() abort
-  let s:vcvars = {}
-endfunction
-
 function! vcvars#list() abort
   return keys(s:query(s:vs.key))
 endfunction
@@ -133,8 +133,6 @@ function! s:msvc(ver, arch, vsdir) abort
   if a:arch ==# 'x86'
     if filereadable(s:FP.join(vcdir, 'bin', 'cl.exe'))
       call add(vars.path, s:FP.join(vcdir, 'bin'))
-    else
-      return {}
     endif
   elseif a:arch ==# 'x64'
     if has('win64') && filereadable(s:FP.join(vcdir, 'bin', 'amd64', 'cl.exe'))
@@ -142,11 +140,12 @@ function! s:msvc(ver, arch, vsdir) abort
     elseif filereadable(s:FP.join(vcdir, 'bin', 'x86_amd64', 'cl.exe'))
       call extend(vars.path, [s:FP.join(vcdir, 'bin', 'x86_amd64'),
       \                       s:FP.join(vcdir, 'bin')])
-    else
-      return {}
     endif
   endif
-  call extend(vars.path, [s:FP.join(a:vsdir, 'VCPackages'),
+  if empty(vars.path)
+    return {}
+  endif
+  call extend(vars.path, [s:FP.join(vcdir, 'VCPackages'),
   \                       s:FP.join(a:vsdir, 'Common7', 'IDE'),
   \                       s:FP.join(a:vsdir, 'Common7', 'Tools')])
 
@@ -184,18 +183,18 @@ function! s:winsdk(vsver, arch) abort
       call add(vars.lib, s:FP.join(winsdkdir, 'Lib', a:arch))
     endif
     call add(vars.include, s:FP.join(winsdkdir, 'Include'))
-  elseif a:vsver =~# '^1[12].0$'
+  elseif a:vsver =~# '^1[12]\.0$'
     call add(vars.path, s:FP.join(winsdkdir, 'bin', a:arch))
-    call extend(vars.include, map(['shared', 'um', 'winrt'], 's:FP.join(winsdkdir, "Include", v:val)'))
+    call extend(vars.include, map(['shared', 'um'], 's:FP.join(winsdkdir, "Include", v:val)'))
     call add(vars.lib, s:FP.join(winsdkdir, 'Lib', a:vsver ==# '11.0' ? 'win8' : 'winv6.3', 'um', a:arch))
-  elseif a:vsver ==# '14.0'
+  else
     let dirs = filter(s:V.glob(s:FP.join(winsdkdir, 'Include', '10.*')), 'isdirectory(v:val)')
     if empty(dirs)
       return {}
     endif
     let winsdkver = sort(map(dirs, 'fnamemodify(v:val, ":t")'))[-1]
     call add(vars.path, s:FP.join(winsdkdir, 'bin', a:arch))
-    call extend(vars.include, map(['ucrt', 'shared', 'um', 'winrt'], 's:FP.join(winsdkdir, "Include", winsdkver, v:val)'))
+    call extend(vars.include, map(['ucrt', 'shared', 'um'], 's:FP.join(winsdkdir, "Include", winsdkver, v:val)'))
     call extend(vars.lib, map(['ucrt', 'um'], 's:FP.join(winsdkdir, "Lib", winsdkver, v:val, a:arch)'))
   endif
   return vars
