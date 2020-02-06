@@ -145,6 +145,27 @@ Describe #call()
     Assert Equals(v:shell_error, 0)
     Assert  Match(out, '191\d:' . arch)
   End
+
+  It complies with Visual Studio 2019
+    if index(vcvars#list(), '16.0') == -1
+      Skip requires Visual Studio 2019
+    endif
+
+    call vcvars#call(expr, '2019', 'x86')
+    silent let out = system(exe)
+    Assert Equals(v:shell_error, 0)
+    Assert  Match(out, '192\d:32')
+
+    call vcvars#call(expr, '2019', 'x64')
+    silent let out = system(exe)
+    Assert Equals(v:shell_error, 0)
+    Assert  Match(out, '192\d:64')
+
+    call vcvars#call(expr, '2019')
+    silent let out = system(exe)
+    Assert Equals(v:shell_error, 0)
+    Assert  Match(out, '192\d:' . arch)
+  End
 End
 
 Describe #get()
@@ -242,6 +263,27 @@ Describe #get()
     endif
 
     for ver in ['15.0', '2017']
+      for arch in ['x86', 'x64', 'x86-64', 'x86_64', 'amd64']
+        let vars = vcvars#get(ver, arch)
+        Assert IsDict(vars)
+        Assert NotEmpty(vars)
+        Assert NotEmpty(Where('nmake.exe', vars.path))
+      endfor
+      let vars = vcvars#get(ver)
+      Assert IsDict(vars)
+      Assert NotEmpty(vars)
+      Assert NotEmpty(Where('nmake.exe', vars.path))
+
+      Assert Equals(vcvars#get(ver, 'arm'), {})
+    endfor
+  End
+
+  It returns Visual Studio 2019 environment variables
+    if index(vcvars#list(), '16.0') == -1
+      Skip requires Visual Studio 2019
+    endif
+
+    for ver in ['16.0', '2019']
       for arch in ['x86', 'x64', 'x86-64', 'x86_64', 'amd64']
         let vars = vcvars#get(ver, arch)
         Assert IsDict(vars)

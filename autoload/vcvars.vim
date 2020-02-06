@@ -18,12 +18,14 @@ let s:vs = {
 \  '2013': '12.0',
 \  '2015': '14.0',
 \  '2017': '15.0',
+\  '2019': '16.0',
 \}
 
 " Visual C++
 let s:vc = {
 \  'id':   'Microsoft.VisualStudio.Component.VC.Tools.x86.x64',
 \  '15.0': 'Microsoft.VCToolsVersion.default.txt',
+\  '16.0': 'Microsoft.VCToolsVersion.v142.default.txt',
 \}
 
 " Windows SDK
@@ -45,6 +47,10 @@ let s:vs_winsdk = {
 \    'var': 'KitsRoot10',
 \  },
 \  '15.0': {
+\    'key': 'Windows Kits\Installed Roots',
+\    'var': 'KitsRoot10',
+\  },
+\  '16.0': {
 \    'key': 'Windows Kits\Installed Roots',
 \    'var': 'KitsRoot10',
 \  },
