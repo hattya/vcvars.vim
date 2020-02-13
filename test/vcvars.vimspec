@@ -7,12 +7,13 @@ Describe #call()
 
     let data = [
     \  '#include <stdio.h>',
-    \  'void main(void) {',
+    \  'int main(void) {',
     \  '#ifdef _WIN64',
     \  '  printf("%d:64", _MSC_VER);',
     \  '#else',
     \  '  printf("%d:32", _MSC_VER);',
     \  '#endif',
+    \  '  return 0;',
     \  '}',
     \]
     call writefile(data, src)
@@ -36,9 +37,9 @@ Describe #call()
   End
 
   It cannot compile
-    call vcvars#call(expr, '2005', 'x86')
+    call vcvars#call(expr, '2008', 'x86')
     silent call system(exe)
-    Assert Compare(v:shell_error, '!=', 0)
+    Assert NotEquals(v:shell_error, 0)
   End
 
   It compiles with Visual Studio 2010
@@ -169,8 +170,12 @@ Describe #call()
 End
 
 Describe #get()
+  Before all
+    let arches = [['x86'], ['x64'], ['x86-64'], ['x86_64'], ['amd64'], []]
+  End
+
   It returns empty dict
-    Assert Equals(vcvars#get('2005', 'x86'), {})
+    Assert Equals(vcvars#get('2008', 'x86'), {})
   End
 
   It returns Visual Studio 2010 environment variables
@@ -178,18 +183,14 @@ Describe #get()
       Skip requires Visual Studio 2010
     endif
 
-    for ver in ['10.0', '2010']
-      for arch in ['x86', 'x64', 'x86-64', 'x86_64', 'amd64']
-        let vars = vcvars#get(ver, arch)
+    for ver in ['2010', '10.0']
+      for arch in arches
+        let vars = call('vcvars#get', [ver] + arch)
         Assert IsDict(vars)
         Assert NotEmpty(vars)
         Assert NotEmpty(Where('nmake.exe', vars.path))
+        Assert NotEmpty(Where('rc.exe', vars.path))
       endfor
-      let vars = vcvars#get(ver)
-      Assert IsDict(vars)
-      Assert NotEmpty(vars)
-      Assert NotEmpty(Where('nmake.exe', vars.path))
-
       Assert Equals(vcvars#get(ver, 'ia64'), {})
     endfor
   End
@@ -199,18 +200,14 @@ Describe #get()
       Skip requires Visual Studio 2012
     endif
 
-    for ver in ['11.0', '2012']
-      for arch in ['x86', 'x64', 'x86-64', 'x86_64', 'amd64']
-        let vars = vcvars#get(ver, arch)
+    for ver in ['2012', '11.0']
+      for arch in arches
+        let vars = call('vcvars#get', [ver] + arch)
         Assert IsDict(vars)
         Assert NotEmpty(vars)
         Assert NotEmpty(Where('nmake.exe', vars.path))
+        Assert NotEmpty(Where('rc.exe', vars.path))
       endfor
-      let vars = vcvars#get(ver)
-      Assert IsDict(vars)
-      Assert NotEmpty(vars)
-      Assert NotEmpty(Where('nmake.exe', vars.path))
-
       Assert Equals(vcvars#get(ver, 'arm'), {})
     endfor
   End
@@ -220,18 +217,14 @@ Describe #get()
       Skip requires Visual Studio 2013
     endif
 
-    for ver in ['12.0', '2013']
-      for arch in ['x86', 'x64', 'x86-64', 'x86_64', 'amd64']
-        let vars = vcvars#get(ver, arch)
+    for ver in ['2013', '12.0']
+      for arch in arches
+        let vars = call('vcvars#get', [ver] + arch)
         Assert IsDict(vars)
         Assert NotEmpty(vars)
         Assert NotEmpty(Where('nmake.exe', vars.path))
+        Assert NotEmpty(Where('rc.exe', vars.path))
       endfor
-      let vars = vcvars#get(ver)
-      Assert IsDict(vars)
-      Assert NotEmpty(vars)
-      Assert NotEmpty(Where('nmake.exe', vars.path))
-
       Assert Equals(vcvars#get(ver, 'arm'), {})
     endfor
   End
@@ -241,18 +234,14 @@ Describe #get()
       Skip requires Visual Studio 2015
     endif
 
-    for ver in ['14.0', '2015']
-      for arch in ['x86', 'x64', 'x86-64', 'x86_64', 'amd64']
-        let vars = vcvars#get(ver, arch)
+    for ver in ['2015', '14.0']
+      for arch in arches
+        let vars = call('vcvars#get', [ver] + arch)
         Assert IsDict(vars)
         Assert NotEmpty(vars)
         Assert NotEmpty(Where('nmake.exe', vars.path))
+        Assert NotEmpty(Where('rc.exe', vars.path))
       endfor
-      let vars = vcvars#get(ver)
-      Assert IsDict(vars)
-      Assert NotEmpty(vars)
-      Assert NotEmpty(Where('nmake.exe', vars.path))
-
       Assert Equals(vcvars#get(ver, 'arm'), {})
     endfor
   End
@@ -262,18 +251,14 @@ Describe #get()
       Skip requires Visual Studio 2017
     endif
 
-    for ver in ['15.0', '2017']
-      for arch in ['x86', 'x64', 'x86-64', 'x86_64', 'amd64']
-        let vars = vcvars#get(ver, arch)
+    for ver in ['2017', '15.0']
+      for arch in arches
+        let vars = call('vcvars#get', [ver] + arch)
         Assert IsDict(vars)
         Assert NotEmpty(vars)
         Assert NotEmpty(Where('nmake.exe', vars.path))
+        Assert NotEmpty(Where('rc.exe', vars.path))
       endfor
-      let vars = vcvars#get(ver)
-      Assert IsDict(vars)
-      Assert NotEmpty(vars)
-      Assert NotEmpty(Where('nmake.exe', vars.path))
-
       Assert Equals(vcvars#get(ver, 'arm'), {})
     endfor
   End
@@ -283,18 +268,14 @@ Describe #get()
       Skip requires Visual Studio 2019
     endif
 
-    for ver in ['16.0', '2019']
-      for arch in ['x86', 'x64', 'x86-64', 'x86_64', 'amd64']
-        let vars = vcvars#get(ver, arch)
+    for ver in ['2019', '16.0']
+      for arch in arches
+        let vars = call('vcvars#get', [ver] + arch)
         Assert IsDict(vars)
         Assert NotEmpty(vars)
         Assert NotEmpty(Where('nmake.exe', vars.path))
+        Assert NotEmpty(Where('rc.exe', vars.path))
       endfor
-      let vars = vcvars#get(ver)
-      Assert IsDict(vars)
-      Assert NotEmpty(vars)
-      Assert NotEmpty(Where('nmake.exe', vars.path))
-
       Assert Equals(vcvars#get(ver, 'arm'), {})
     endfor
   End
