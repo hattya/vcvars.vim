@@ -10,8 +10,7 @@ let s:V = vital#vcvars#import('Prelude')
 let s:P = vital#vcvars#import('Process')
 let s:FP = vital#vcvars#import('System.Filepath')
 
-" Visual Studio
-let s:vs = {
+let s:visual_studio = {
 \  'key':  'VisualStudio\SxS\VS7',
 \  '2010': '10.0',
 \  '2012': '11.0',
@@ -21,8 +20,8 @@ let s:vs = {
 \  '2019': '16.0',
 \}
 
-" Visual C++
-let s:vc = {
+let s:visual_cpp = {
+\  'key':  'VisualStudio\SxS\VC7',
 \  'id':   'Microsoft.VisualStudio.Component.VC.Tools.x86.x64',
 \  '15.0': 'Microsoft.VCToolsVersion.default.txt',
 \  '16.0': 'Microsoft.VCToolsVersion.v142.default.txt',
@@ -97,8 +96,8 @@ function! vcvars#clear() abort
 endfunction
 
 function! vcvars#get(ver, ...) abort
-  let ver = get(s:vs, a:ver, a:ver)
-  let vsdir = get(ver =~# '^1[0-4]\.0$' ? s:query(s:vs.key) : s:vswhere(), ver, '')
+  let ver = get(s:visual_studio, a:ver, a:ver)
+  let vsdir = get(ver =~# '^1[0-4]\.0$' ? s:query(s:visual_studio.key) : s:vswhere(), ver, '')
   if !isdirectory(vsdir)
     return {}
   endif
@@ -118,8 +117,8 @@ function! vcvars#get(ver, ...) abort
     let s:vcvars[ver] = {}
   endif
   if !has_key(s:vcvars[ver], arch)
-    let msvc = s:msvc(ver, arch, vsdir)
-    if empty(msvc)
+    let vc = s:vc(ver, arch, vsdir)
+    if empty(vc)
       return {}
     endif
     let winsdk = s:winsdk(ver, arch)
@@ -127,22 +126,22 @@ function! vcvars#get(ver, ...) abort
       return {}
     endif
     let s:vcvars[ver][arch] = {
-    \  'path':    msvc.path + winsdk.path,
-    \  'include': msvc.include + winsdk.include,
-    \  'lib':     msvc.lib + winsdk.lib,
-    \  'libpath': msvc.libpath + winsdk.libpath,
+    \  'path':    vc.path + winsdk.path,
+    \  'include': vc.include + winsdk.include,
+    \  'lib':     vc.lib + winsdk.lib,
+    \  'libpath': vc.libpath + winsdk.libpath,
     \}
   endif
   return s:vcvars[ver][arch]
 endfunction
 
 function! vcvars#list() abort
-  return keys(s:query(s:vs.key)) + keys(s:vswhere())
+  return sort(filter(keys(s:query(s:visual_cpp.key)), 'v:val =~# ''^\d\{2}\.0$''') + keys(s:vswhere()), {a, b -> str2nr(a) - str2nr(b)})
 endfunction
 
-function! s:msvc(ver, arch, vsdir) abort
+function! s:vc(ver, arch, vsdir) abort
   if a:ver =~# '^1[0-4]\.0$'
-    let vcdir = s:FP.join(a:vsdir, 'VC')
+    let vcdir = get(s:query(s:visual_cpp.key), a:ver, '')
     if !isdirectory(vcdir)
       return {}
     endif
@@ -164,11 +163,11 @@ function! s:msvc(ver, arch, vsdir) abort
     endif
     let vcpackages = s:FP.join(vcdir, 'VCPackages')
   else
-    let conf = s:FP.join(a:vsdir, 'VC', 'Auxiliary', 'Build', s:vc[a:ver])
-    if !filereadable(conf)
+    let vcver = s:FP.join(a:vsdir, 'VC', 'Auxiliary', 'Build', s:visual_cpp[a:ver])
+    if !filereadable(vcver)
       return {}
     endif
-    let vcdir = s:FP.join(a:vsdir, 'VC', 'Tools', 'MSVC', readfile(conf)[0])
+    let vcdir = s:FP.join(a:vsdir, 'VC', 'Tools', 'MSVC', readfile(vcver)[0])
     if !isdirectory(vcdir)
       return {}
     endif
@@ -274,7 +273,7 @@ function! s:vswhere() abort
     return {}
   endif
 
-  silent let out = s:P.system(printf('"%s" -products * -requires %s -nologo', vswhere, s:vc.id))
+  silent let out = s:P.system(printf('"%s" -products * -requires %s -nologo', vswhere, s:visual_cpp.id))
   if s:P.get_last_status()
     return {}
   endif
