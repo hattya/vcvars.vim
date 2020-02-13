@@ -2,7 +2,7 @@ vcvars.vim
 ==========
 
 vcvars.vim is a Vim plugin to retrieve the PATH, INCLUDE, LIB, and LIBPATH
-environment variables for a specified version of Visual C++.
+environment variables for the specified version of Visual C++.
 
 .. image:: https://ci.appveyor.com/api/projects/status/pjvw0fiidsy229jq/branch/master?svg=true
    :target: https://ci.appveyor.com/project/hattya/vcvars-vim
@@ -17,24 +17,11 @@ environment variables for a specified version of Visual C++.
 Installation
 ------------
 
-pathogen.vim_
-
-.. code:: console
-
-   $ cd ~/.vim/bundle
-   $ git clone https://github.com/hattya/vcvars.vim
-
 Vundle_
 
 .. code:: vim
 
    Plugin 'hattya/vcvars.vim'
-
-NeoBundle_
-
-.. code:: vim
-
-   NeoBundle 'hattya/vcvars.vim'
 
 vim-plug_
 
@@ -42,10 +29,22 @@ vim-plug_
 
    Plug 'hattya/vcvars.vim'
 
-.. _pathogen.vim: https://github.com/tpope/vim-pathogen
+dein.vim_
+
+.. code:: vim
+
+   call dein#add('hattya/vcvars.vim')
+
 .. _Vundle: https://github.com/VundleVim/Vundle.vim
-.. _NeoBundle: https://github.com/Shougo/neobundle.vim
 .. _vim-plug: https://github.com/junegunn/vim-plug
+.. _dein.vim: https://github.com/Shougo/dein.vim
+
+
+Requirements
+------------
+
+- Vim 8.0+
+- Visual Studio 2010+
 
 
 Testing
