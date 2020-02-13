@@ -1,6 +1,6 @@
 " File:        autoload/vcvars.vim
 " Author:      Akinori Hattori <hattya@gmail.com>
-" Last Change: 2020-02-06
+" Last Change: 2020-02-13
 " License:     MIT License
 
 let s:save_cpo = &cpo
@@ -246,15 +246,14 @@ function! s:winsdk(vsver, arch) abort
 endfunction
 
 function! s:query(key, ...) abort
-  let val = a:0 ? '/v "' . a:1 . '"' : ''
-  try
-    silent let out = split(s:P.system(printf('reg query "HKLM\SOFTWARE\Microsoft\%s" %s /reg:32', a:key, val)), '\n')
-  catch
+  let v = a:0 ? '/v "' . a:1 . '"' : ''
+  silent let out = s:P.system(printf('reg query "HKLM\SOFTWARE\Microsoft\%s" %s /reg:32', a:key, v))
+  if s:P.get_last_status()
     return {}
-  endtry
+  endif
 
   let rv = {}
-  for l in out
+  for l in split(out, '\n')
     let m = matchlist(l, '\v^\s{4,}(.+)\s{4,}REG_.+\s{4,}(.+)$')
     if !empty(m)
       let rv[m[1]] = m[2]
@@ -276,6 +275,10 @@ function! s:vswhere() abort
   endif
 
   silent let out = s:P.system(printf('"%s" -products * -requires %s -nologo', vswhere, s:vc.id))
+  if s:P.get_last_status()
+    return {}
+  endif
+
   let rv = {}
   let props = {}
   for l in split(out . '\n', '\n')
