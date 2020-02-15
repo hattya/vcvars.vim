@@ -43,7 +43,7 @@ Describe #call()
   End
 
   It compiles with Visual Studio 2010
-    if index(vcvars#list(), '10.0') == -1
+    if !vcvars#has('2010')
       Skip requires Visual Studio 2010
     endif
 
@@ -64,7 +64,7 @@ Describe #call()
   End
 
   It compiles with Visual Studio 2012
-    if index(vcvars#list(), '11.0') == -1
+    if !vcvars#has('2012')
       Skip requires Visual Studio 2012
     endif
 
@@ -85,7 +85,7 @@ Describe #call()
   End
 
   It compiles with Visual Studio 2013
-    if index(vcvars#list(), '12.0') == -1
+    if !vcvars#has('2013')
       Skip requires Visual Studio 2013
     endif
 
@@ -106,7 +106,7 @@ Describe #call()
   End
 
   It compiles with Visual Studio 2015
-    if index(vcvars#list(), '14.0') == -1
+    if !vcvars#has('2015')
       Skip requires Visual Studio 2015
     endif
 
@@ -127,7 +127,7 @@ Describe #call()
   End
 
   It complies with Visual Studio 2017
-    if index(vcvars#list(), '15.0') == -1
+    if !vcvars#has('2017')
       Skip requires Visual Studio 2017
     endif
 
@@ -148,7 +148,7 @@ Describe #call()
   End
 
   It complies with Visual Studio 2019
-    if index(vcvars#list(), '16.0') == -1
+    if !vcvars#has('2019')
       Skip requires Visual Studio 2019
     endif
 
@@ -179,7 +179,7 @@ Describe #get()
   End
 
   It returns Visual Studio 2010 environment variables
-    if index(vcvars#list(), '10.0') == -1
+    if !vcvars#has('2010')
       Skip requires Visual Studio 2010
     endif
 
@@ -196,7 +196,7 @@ Describe #get()
   End
 
   It returns Visual Studio 2012 environment variables
-    if index(vcvars#list(), '11.0') == -1
+    if !vcvars#has('2012')
       Skip requires Visual Studio 2012
     endif
 
@@ -213,7 +213,7 @@ Describe #get()
   End
 
   It returns Visual Studio 2013 environment variables
-    if index(vcvars#list(), '12.0') == -1
+    if !vcvars#has('2013')
       Skip requires Visual Studio 2013
     endif
 
@@ -230,7 +230,7 @@ Describe #get()
   End
 
   It returns Visual Studio 2015 environment variables
-    if index(vcvars#list(), '14.0') == -1
+    if !vcvars#has('2015')
       Skip requires Visual Studio 2015
     endif
 
@@ -247,7 +247,7 @@ Describe #get()
   End
 
   It returns Visual Studio 2017 environment variables
-    if index(vcvars#list(), '15.0') == -1
+    if !vcvars#has('2017')
       Skip requires Visual Studio 2017
     endif
 
@@ -264,7 +264,7 @@ Describe #get()
   End
 
   It returns Visual Studio 2019 environment variables
-    if index(vcvars#list(), '16.0') == -1
+    if !vcvars#has('2019')
       Skip requires Visual Studio 2019
     endif
 

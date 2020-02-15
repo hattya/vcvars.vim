@@ -148,6 +148,10 @@ function! vcvars#get(ver, ...) abort
   return s:vcvars[ver][arch]
 endfunction
 
+function! vcvars#has(ver) abort
+  return index(vcvars#list(), get(s:visual_studio, a:ver, a:ver)) != -1
+endfunction
+
 function! vcvars#list() abort
   return sort(filter(keys(s:query(s:visual_cpp.key)), 'v:val =~# ''^\d\{2}\.0$''') + keys(s:vswhere()), {a, b -> str2nr(a) - str2nr(b)})
 endfunction
