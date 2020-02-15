@@ -1,6 +1,6 @@
 " File:        autoload/vcvars.vim
 " Author:      Akinori Hattori <hattya@gmail.com>
-" Last Change: 2020-02-13
+" Last Change: 2020-02-15
 " License:     MIT License
 
 let s:save_cpo = &cpo
@@ -23,33 +23,46 @@ let s:visual_studio = {
 let s:visual_cpp = {
 \  'key':  'VisualStudio\SxS\VC7',
 \  'id':   'Microsoft.VisualStudio.Component.VC.Tools.x86.x64',
-\  '15.0': 'Microsoft.VCToolsVersion.default.txt',
-\  '16.0': 'Microsoft.VCToolsVersion.v142.default.txt',
+\  '10.0': {
+\    'winsdk':  ['7.1', '7.0A'],
+\  },
+\  '11.0': {
+\    'winsdk':  ['8.0'],
+\  },
+\  '12.0': {
+\    'winsdk':  ['8.1'],
+\  },
+\  '14.0': {
+\    'winsdk':  ['10', '8.1'],
+\  },
+\  '15.0': {
+\    'version': 'Microsoft.VCToolsVersion.default.txt',
+\    'winsdk':  ['10', '8.1'],
+\  },
+\  '16.0': {
+\    'version': 'Microsoft.VCToolsVersion.v142.default.txt',
+\    'winsdk':  ['10', '8.1'],
+\  },
 \}
 
-" Windows SDK
-let s:vs_winsdk = {
-\  '10.0': {
+let s:windows_sdk = {
+\  '7.0A': {
+\    'key': 'Microsoft SDKs\Windows\v7.0A',
+\    'var': 'InstallationFolder',
+\  },
+\  '7.1': {
 \    'key': 'Microsoft SDKs\Windows\v7.1',
 \    'var': 'InstallationFolder',
 \  },
-\  '11.0': {
+\  '8.0': {
 \    'key': 'Windows Kits\Installed Roots',
 \    'var': 'KitsRoot',
 \  },
-\  '12.0': {
+\  '8.1': {
 \    'key': 'Windows Kits\Installed Roots',
 \    'var': 'KitsRoot81',
 \  },
-\  '14.0': {
-\    'key': 'Windows Kits\Installed Roots',
-\    'var': 'KitsRoot10',
-\  },
-\  '15.0': {
-\    'key': 'Windows Kits\Installed Roots',
-\    'var': 'KitsRoot10',
-\  },
-\  '16.0': {
+\  '10': {
 \    'key': 'Windows Kits\Installed Roots',
 \    'var': 'KitsRoot10',
 \  },
@@ -163,7 +176,7 @@ function! s:vc(ver, arch, vsdir) abort
     endif
     let vcpackages = s:FP.join(vcdir, 'VCPackages')
   else
-    let vcver = s:FP.join(a:vsdir, 'VC', 'Auxiliary', 'Build', s:visual_cpp[a:ver])
+    let vcver = s:FP.join(a:vsdir, 'VC', 'Auxiliary', 'Build', s:visual_cpp[a:ver].version)
     if !filereadable(vcver)
       return {}
     endif
@@ -211,9 +224,16 @@ function! s:vc(ver, arch, vsdir) abort
 endfunction
 
 function! s:winsdk(vsver, arch) abort
-  let winsdk = s:vs_winsdk[a:vsver]
-  let winsdkdir = get(s:query(winsdk.key, winsdk.var), winsdk.var, '')
-  if !isdirectory(winsdkdir)
+  let ok = 0
+  for ver in s:visual_cpp[a:vsver].winsdk
+    let winsdk = s:windows_sdk[ver]
+    let winsdkdir = get(s:query(winsdk.key, winsdk.var), winsdk.var, '')
+    if isdirectory(winsdkdir)
+      let ok = 1
+      break
+    endif
+  endfor
+  if !ok
     return {}
   endif
   let vars = deepcopy(s:vars)
