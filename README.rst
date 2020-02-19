@@ -13,6 +13,9 @@ environment variables for the specified version of Visual C++.
 .. image:: https://img.shields.io/badge/powered_by-vital.vim-80273f.svg
    :target: https://github.com/vim-jp/vital.vim
 
+.. image:: https://img.shields.io/badge/doc-:h%20vcvars.txt-blue.svg
+   :target: doc/vcvars.txt
+
 
 Installation
 ------------
