@@ -2,7 +2,7 @@
 
 Author:      Akinori Hattori <hattya@gmail.com>
 Repository:  https://github.com/hattya/vcvars.vim
-Last Change: 2020-02-19
+Last Change: 2020-10-18
 License:     MIT License
 
 CONTENTS					*vcvars-contents*
@@ -26,8 +26,8 @@ USAGE						*vcvars-usage*
 	  call vcvars#call('!nmake', '2019')
 	endif
 
-*vcvars#has()* checks that the Visual Studio 2019 is installed, and
-*vcvars#call()* executes "!nmake" with it.
+|vcvars#has()| checks that the Visual Studio 2019 is installed, and
+|vcvars#call()| executes "!nmake" with it.
 
 If you want to use the latest version of Visual Studio:
 >
