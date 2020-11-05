@@ -41,7 +41,7 @@ jobs:
         env:
           THEMIS_VIM: ${{ steps.vim.outputs.executable }}
         run: ./vim-themis/bin/themis --reporter spec
-      - name: Run covimerage
+      - name: Generate XML coverage report
         run: |
           covimerage write_coverage ${{ env.PROFILE }}
           covimerage xml
