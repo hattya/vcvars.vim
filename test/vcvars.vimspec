@@ -167,6 +167,27 @@ Describe #call()
     Assert Equals(v:shell_error, 0)
     Assert  Match(out, '192\d:' . arch)
   End
+
+  It complies with Visual Studio 2022
+    if !vcvars#has('2022')
+      Skip requires Visual Studio 2022
+    endif
+
+    call vcvars#call(expr, '2022', 'x86')
+    silent let out = system(exe)
+    Assert Equals(v:shell_error, 0)
+    Assert  Match(out, '193\d:32')
+
+    call vcvars#call(expr, '2022', 'x64')
+    silent let out = system(exe)
+    Assert Equals(v:shell_error, 0)
+    Assert  Match(out, '193\d:64')
+
+    call vcvars#call(expr, '2022')
+    silent let out = system(exe)
+    Assert Equals(v:shell_error, 0)
+    Assert  Match(out, '193\d:' . arch)
+  End
 End
 
 Describe #get()
@@ -269,6 +290,23 @@ Describe #get()
     endif
 
     for ver in ['2019', '16.0']
+      for arch in arches
+        let vars = call('vcvars#get', [ver] + arch)
+        Assert IsDict(vars)
+        Assert NotEmpty(vars)
+        Assert NotEmpty(Where('nmake.exe', vars.path))
+        Assert NotEmpty(Where('rc.exe', vars.path))
+      endfor
+      Assert Equals(vcvars#get(ver, 'arm'), {})
+    endfor
+  End
+
+  It returns Visual Studio 2022 environment variables
+    if !vcvars#has('2022')
+      Skip requires Visual Studio 2022
+    endif
+
+    for ver in ['2022', '17.0']
       for arch in arches
         let vars = call('vcvars#get', [ver] + arch)
         Assert IsDict(vars)

@@ -16,7 +16,7 @@ jobs:
           - x86_64
       fail-fast: false
     name: Vim ${{ matrix.vim_version }} (${{ matrix.arch }})
-    runs-on: windows-2019
+    runs-on: windows-latest
     env:
       PROFILE: profile.txt
     timeout-minutes: 10

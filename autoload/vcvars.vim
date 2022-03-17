@@ -1,6 +1,6 @@
 " File:        autoload/vcvars.vim
 " Author:      Akinori Hattori <hattya@gmail.com>
-" Last Change: 2020-02-15
+" Last Change: 2022-03-17
 " License:     MIT License
 
 let s:save_cpo = &cpo
@@ -18,6 +18,7 @@ let s:visual_studio = {
 \  '2015': '14.0',
 \  '2017': '15.0',
 \  '2019': '16.0',
+\  '2022': '17.0',
 \}
 
 let s:visual_cpp = {
@@ -43,6 +44,10 @@ let s:visual_cpp = {
 \    'version': 'Microsoft.VCToolsVersion.v142.default.txt',
 \    'winsdk':  ['10', '8.1'],
 \  },
+\  '17.0': {
+\    'version': 'Microsoft.VCToolsVersion.v143.default.txt',
+\    'winsdk':  ['10'],
+\  }
 \}
 
 let s:windows_sdk = {
