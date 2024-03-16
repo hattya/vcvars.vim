@@ -32,7 +32,7 @@ jobs:
           path: vim-themis
       - name: Setup Vim
         id: vim
-        uses: thinca/action-setup-vim@v1
+        uses: thinca/action-setup-vim@v2
         with:
           vim_version: ${{ matrix.vim_version }}
           arch: ${{ matrix.arch }}
@@ -44,7 +44,7 @@ jobs:
       - name: Install covimerage
         run: |
           python -m pip install -U pip setuptools wheel
-          pip install -U covimerage
+          python -m pip install -U covimerage
       - name: Test
         env:
           THEMIS_VIM: ${{ steps.vim.outputs.executable }}
