@@ -176,17 +176,17 @@ Describe #call()
     call vcvars#call(expr, '2022', 'x86')
     silent let out = system(exe)
     Assert Equals(v:shell_error, 0)
-    Assert  Match(out, '193\d:32')
+    Assert  Match(out, '19[34]\d:32')
 
     call vcvars#call(expr, '2022', 'x64')
     silent let out = system(exe)
     Assert Equals(v:shell_error, 0)
-    Assert  Match(out, '193\d:64')
+    Assert  Match(out, '19[34]\d:64')
 
     call vcvars#call(expr, '2022')
     silent let out = system(exe)
     Assert Equals(v:shell_error, 0)
-    Assert  Match(out, '193\d:' . arch)
+    Assert  Match(out, '19[34]\d:' . arch)
   End
 End
 
