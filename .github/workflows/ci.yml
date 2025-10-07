@@ -22,24 +22,24 @@ jobs:
     timeout-minutes: 10
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           persist-credentials: false
       - name: Checkout themis.vim
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           repository: thinca/vim-themis
           persist-credentials: false
           path: vim-themis
       - name: Setup Vim
         id: vim
-        uses: thinca/action-setup-vim@v2
+        uses: thinca/action-setup-vim@v3
         with:
           vim_version: ${{ matrix.vim_version }}
           arch: ${{ matrix.arch }}
           download: always
       - name: Setup Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: 3.x
       - name: Install Primula
