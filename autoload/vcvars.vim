@@ -19,6 +19,7 @@ let s:visual_studio = {
 \  '2017': '15.0',
 \  '2019': '16.0',
 \  '2022': '17.0',
+\  '2026': '18.0',
 \}
 
 let s:visual_cpp = {
@@ -46,6 +47,10 @@ let s:visual_cpp = {
 \  },
 \  '17.0': {
 \    'version': 'Microsoft.VCToolsVersion.v143.default.txt',
+\    'winsdk':  ['10'],
+\  },
+\  '18.0': {
+\    'version': 'Microsoft.VCToolsVersion.default.txt',
 \    'winsdk':  ['10'],
 \  }
 \}
