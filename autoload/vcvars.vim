@@ -1,6 +1,6 @@
 " File:        autoload/vcvars.vim
 " Author:      Akinori Hattori <hattya@gmail.com>
-" Last Change: 2022-03-17
+" Last Change: 2026-02-14
 " License:     MIT License
 
 let s:save_cpo = &cpo
@@ -19,6 +19,7 @@ let s:visual_studio = {
 \  '2017': '15.0',
 \  '2019': '16.0',
 \  '2022': '17.0',
+\  '2026': '18.0',
 \}
 
 let s:visual_cpp = {
@@ -46,6 +47,10 @@ let s:visual_cpp = {
 \  },
 \  '17.0': {
 \    'version': 'Microsoft.VCToolsVersion.v143.default.txt',
+\    'winsdk':  ['10'],
+\  },
+\  '18.0': {
+\    'version': 'v145',
 \    'winsdk':  ['10'],
 \  }
 \}
@@ -185,7 +190,17 @@ function! s:vc(ver, arch, vsdir) abort
     endif
     let vcpackages = s:FP.join(vcdir, 'VCPackages')
   else
-    let vcver = s:FP.join(a:vsdir, 'VC', 'Auxiliary', 'Build', s:visual_cpp[a:ver].version)
+    if a:ver =~# '^1[5-7]\.0$'
+      let vcver = s:FP.join(a:vsdir, 'VC', 'Auxiliary', 'Build', s:visual_cpp[a:ver].version)
+    else
+      let vcver = ''
+      for p in reverse(sort(glob(s:FP.join(a:vsdir, 'VC', 'Auxiliary', 'Build', s:visual_cpp[a:ver].version, 'Microsoft.VCToolsVersion.VC.*.txt'), 1, 1), 'i'))
+        if count(fnamemodify(p, ':t:r')[28 :], '.') == 3
+          let vcver = p
+          break
+        endif
+      endfor
+    endif
     if !filereadable(vcver)
       return {}
     endif

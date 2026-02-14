@@ -16,9 +16,17 @@ jobs:
         arch:
           - x86
           - x86_64
+        vs:
+          - 2022
+          - 2026
+        include:
+          - vs: 2022
+            os: windows-latest
+          - vs: 2026
+            os: windows-2025-vs2026
       fail-fast: false
-    name: Vim ${{ matrix.vim_version }} (${{ matrix.arch }})
-    runs-on: windows-latest
+    name: Vim ${{ matrix.vim_version }} (${{ matrix.arch }}) with Visual Studio ${{ matrix.vs }}
+    runs-on: ${{ matrix.os }}
     timeout-minutes: 10
     steps:
       - name: Checkout code

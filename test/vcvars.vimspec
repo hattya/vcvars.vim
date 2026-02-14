@@ -188,6 +188,27 @@ Describe #call()
     Assert Equals(v:shell_error, 0)
     Assert  Match(out, '19[34]\d:' . arch)
   End
+
+  It complies with Visual Studio 2026
+    if !vcvars#has('2026')
+      Skip requires Visual Studio 2026
+    endif
+
+    call vcvars#call(expr, '2026', 'x86')
+    silent let out = system(exe)
+    Assert Equals(v:shell_error, 0)
+    Assert  Match(out, '195\d:32')
+
+    call vcvars#call(expr, '2026', 'x64')
+    silent let out = system(exe)
+    Assert Equals(v:shell_error, 0)
+    Assert  Match(out, '195\d:64')
+
+    call vcvars#call(expr, '2026')
+    silent let out = system(exe)
+    Assert Equals(v:shell_error, 0)
+    Assert  Match(out, '195\d:' . arch)
+  End
 End
 
 Describe #get()
@@ -307,6 +328,23 @@ Describe #get()
     endif
 
     for ver in ['2022', '17.0']
+      for arch in arches
+        let vars = call('vcvars#get', [ver] + arch)
+        Assert IsDict(vars)
+        Assert NotEmpty(vars)
+        Assert NotEmpty(Where('nmake.exe', vars.path))
+        Assert NotEmpty(Where('rc.exe', vars.path))
+      endfor
+      Assert Equals(vcvars#get(ver, 'arm'), {})
+    endfor
+  End
+
+  It returns Visual Studio 2026 environment variables
+    if !vcvars#has('2026')
+      Skip requires Visual Studio 2026
+    endif
+
+    for ver in ['2026', '18.0']
       for arch in arches
         let vars = call('vcvars#get', [ver] + arch)
         Assert IsDict(vars)
