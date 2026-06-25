@@ -22,7 +22,7 @@ jobs:
           - 2026
         include:
           - vs: 2022
-            os: windows-latest
+            os: windows-2022
           - vs: 2026
             os: windows-2025-vs2026
       fail-fast: false
@@ -31,11 +31,11 @@ jobs:
     timeout-minutes: 10
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           persist-credentials: false
       - name: Checkout themis.vim
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           repository: thinca/vim-themis
           persist-credentials: false
@@ -64,7 +64,7 @@ jobs:
       - name: Generate XML coverage report
         run: primula xml
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v5
+        uses: codecov/codecov-action@v7
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           fail_ci_if_error: true
