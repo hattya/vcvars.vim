@@ -1,6 +1,6 @@
 " File:        autoload/vcvars.vim
 " Author:      Akinori Hattori <hattya@gmail.com>
-" Last Change: 2026-02-14
+" Last Change: 2026-06-25
 " License:     MIT License
 
 let s:save_cpo = &cpo
@@ -194,9 +194,9 @@ function! s:vc(ver, arch, vsdir) abort
       let vcver = s:FP.join(a:vsdir, 'VC', 'Auxiliary', 'Build', s:visual_cpp[a:ver].version)
     else
       let vcver = ''
-      for p in reverse(sort(glob(s:FP.join(a:vsdir, 'VC', 'Auxiliary', 'Build', s:visual_cpp[a:ver].version, 'Microsoft.VCToolsVersion.VC.*.txt'), 1, 1), 'i'))
-        if count(fnamemodify(p, ':t:r')[28 :], '.') == 3
-          let vcver = p
+      for l in readfile(s:FP.join(a:vsdir, 'VC', 'Auxiliary', 'Build', 'Microsoft.VCToolsVersion.' . s:visual_cpp[a:ver].version . '.default.props'))
+        if l =~# '<VCToolsVersionLatest>'
+          let vcver = s:FP.join(a:vsdir, 'VC', 'Auxiliary', 'Build', s:visual_cpp[a:ver].version, 'Microsoft.VCToolsVersion.VC.' . matchstr(l, '>\zs[^<>]\+\ze<') . '.txt')
           break
         endif
       endfor
